@@ -5,7 +5,7 @@ import api from "../api";
 
 const uploadFile = ref(null);
 const uploadURL = ref(null);
-
+/** 파일 선택, 미리보기, 업로드 구현 */
 // TODO : 새로고침시 추가 로직 필요한지 확인
 onMounted(async () => {
   try {
@@ -62,5 +62,4 @@ async function saveUploadImage() {}
     <a :href="`/images/${image}`" target="_blank">{{ image }}</a>
   </div>
 </template>
-
-<style scoped></style>
+<!-- <style scoped></style> -->
