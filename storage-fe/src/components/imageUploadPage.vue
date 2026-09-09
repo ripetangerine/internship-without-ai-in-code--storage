@@ -3,26 +3,32 @@ import { ref } from "vue";
 
 import api from "../api";
 
-const uploadedFile = ref(null);
+const uploadFile = ref(null);
+const uploadURL = ref(null);
 
 // TODO : 새로고침시 추가 로직 필요한지 확인
 onMounted(async () => {
   try {
     const res = await api.get("/image/upload");
-    const preUploadURL = res.uploadURL; // TODO : 추후 이곳에서 값이 없을 시 상세 오류가 나도록 설계
+    uploadURL.value = res.uploadURL; // TODO : 추후 이곳에서 값이 없을 시 상세 오류가 나도록 설계
   } catch (error) {
     console.error(`error occurred: ${error}`);
   }
 });
 
-async function handleImageUpload(e) {
+function handleImageUpload(e) {
   //   this.input.image = this.$refs.images.files;
   //   console.log(this.input.image);
-  if (uploadedFile.value) {
+  const inputImage = e.target;
+
+  if (inputImage && inputImage.files) {
+    uploadFile.value = inputImage.files[0];
     const formData = new FormData();
-    formData.append("uploadedFile", uploadedFile.value);
+    formData.append("uploadedFile", uploadFile.value);
   }
 }
+
+async function saveUploadImage() {}
 </script>
 
 /** 뇌를 활성화 그러니까 - presigned 클라이언트 로딩 시간에 >> 백엔드에게
@@ -37,11 +43,12 @@ async function handleImageUpload(e) {
       <label>image upload</label>
       <input
         @change="handleImageUpload"
-        ref="imageInput"
+        ref="uploadFile"
         type="file"
         accept="image/*"
         id="image_upload"
         name="image_upload"
+        capture
       />
       <button>do it NOW!</button>
     </form>
