@@ -5,6 +5,7 @@ import api from "../api";
 
 const uploadFile = ref(null);
 const uploadURL = ref(null);
+const previewURL = ref(null);
 /** 파일 선택, 미리보기, 업로드 구현 */
 
 onMounted(async () => {
@@ -17,17 +18,12 @@ onMounted(async () => {
 });
 
 function handleInputChange(e) {
-  //   this.input.image = this.$refs.images.files;
-  //   console.log(this.input.image);
-  // const inputImage = e.target;
-
-  // if (inputImage && inputImage.files) {
-  //   uploadFile.value = inputImage.files[0];
-  //   const formData = new FormData();
-  //   formData.append("uploadedFile", uploadFile.value);
-  // }
-
-  uploadFile.value = e.target.files[0];
+  const targetFile = e.target.files[0];
+  if (!targetFile) {
+    return;
+  }
+  uploadFile.value = targetFile;
+  previewURL.value = URL.createObjectURL(targetFile);
 }
 
 async function uploadImage() {
@@ -61,37 +57,33 @@ async function uploadImage() {
 성공 했다면 be에게 이미지의 메타 데이터 전달 이후 저장 */
 
 <template>
-  <div>
-    <form
-      method="get"
-      @submit.prevent="
-        {
-          {
-            uploadFile;
-          }
-        }
-      "
-    >
-      <label>image upload</label>
-      <input
-        @change="handleInputChange"
-        ref="uploadFile"
-        type="file"
-        accept="image/*"
-        id="image_upload"
-        name="image_upload"
-        capture
-      />
-      <button>do it NOW!</button>
-    </form>
+  <div class="container">
+    <label>storage blob upload</label>
+    <input
+      @change="handleInputChange"
+      ref="uploadFile"
+      type="file"
+      accept="image/*"
+    />
 
     <div ref="preview" class="preview">
-      <p>{{ NO_DATA_TEXT }}</p>
+      <!-- <p>{{ NO_DATA_TEXT }}</p> -->
+    </div>
+    <div class="uploaded_image_view">
+      <img v-if="previewURL" :src="previewURL" alt="이미지 미리보기" />
+      <p v-else>이미지를 선택</p>
     </div>
   </div>
-
-  <div class="uploaded_image_view">
-    <a :href="`/images/${image}`" target="_blank">{{ image }}</a>
-  </div>
 </template>
-<!-- <style scoped></style> -->
+
+<style scoped>
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  width: 50%;
+  margin: 0 auto;
+}
+</style>
