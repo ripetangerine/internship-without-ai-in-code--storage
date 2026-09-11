@@ -1,21 +1,12 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, reactive, ref } from "vue";
 
 import api from "../api";
 
 const uploadFile = ref(null);
-const uploadURL = ref(null);
 const previewURL = ref(null);
+const formData = reactive(new FormData());
 /** 파일 선택, 미리보기, 업로드 구현 */
-
-onMounted(async () => {
-  try {
-    const res = await api.get("/files/images");
-    uploadURL.value = res.uploadURL; // TODO : 추후 이곳에서 값이 없을 시 상세 오류가 나도록 설계
-  } catch (error) {
-    console.error(`error occurred: ${error}`);
-  }
-});
 
 function handleInputChange(e) {
   const targetFile = e.target.files[0];
@@ -28,17 +19,17 @@ function handleInputChange(e) {
 
 async function uploadImage() {
   if (uploadFile.value) {
-    const formData = new FormData();
     formData.append("uploadFile", uploadFile.value);
 
     try {
       // 별도 url 업로드
       // TODO : storage에는 blob를 업로드, db에는 url 메타 데이터를 업로드 이후 결정 (BE 로직 짜고)
-      const rtnImages = await api.post("/files/images", formData, {
-        header: {
+      const rtnImages = await api.post("/api/files/images", formData, {
+        headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      alert("업로드 완료");
       console.log(rtnImages);
     } catch (error) {
       console.error("업로드중 에러 : ", error);
@@ -59,19 +50,21 @@ async function uploadImage() {
 <template>
   <div class="container">
     <label>storage blob upload</label>
-    <input
-      @change="handleInputChange"
-      ref="uploadFile"
-      type="file"
-      accept="image/*"
-    />
-
+    <form @submit.prevent="uploadImage">
+      <input
+        @change="handleInputChange"
+        ref="uploadFile"
+        type="file"
+        accept="image/*"
+      />
+      <button type="submit">upload</button>
+    </form>
     <div ref="preview" class="preview">
       <!-- <p>{{ NO_DATA_TEXT }}</p> -->
     </div>
     <div class="uploaded_image_view">
       <img v-if="previewURL" :src="previewURL" alt="이미지 미리보기" />
-      <p v-else>이미지를 선택</p>
+      <p v-else>이미지 미리보기</p>
     </div>
   </div>
 </template>
