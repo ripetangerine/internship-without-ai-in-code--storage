@@ -1,9 +1,6 @@
-﻿using Azure.Identity;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
-using System.Diagnostics;
 
 namespace Infra.Repositories
 {
@@ -15,7 +12,7 @@ namespace Infra.Repositories
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task UploadAsync(
+        public async Task<string> UploadAsync(
             string containerName,
             string blobName,
             byte[] bytes,
@@ -23,7 +20,7 @@ namespace Infra.Repositories
         )
         {
             var container = _blobServiceClient.GetBlobContainerClient(containerName);
-            await container.CreateIfNotExistsAsync(PublicAccessType.None);
+            await container.CreateIfNotExistsAsync(PublicAccessType.None); // private container gen
 
             var blob = container.GetBlobClient(blobName);
             using var stream = new MemoryStream(bytes);
@@ -37,6 +34,7 @@ namespace Infra.Repositories
                 };
             }
             await blob.UploadAsync(stream, options);
+            return _blobServiceClient.Uri.AbsoluteUri;
         }
 
         public async Task<string?> GetSasUrlAsync(string containerName, string blobName, int expiryHours = 1)
@@ -50,9 +48,9 @@ namespace Infra.Repositories
                 DateTimeOffset.UtcNow.AddMinutes(-5)
             )
             {
-                ExpiresOn = DateTimeOffset.UtcNow.AddHours(expiryHours+1)
+                ExpiresOn = DateTimeOffset.UtcNow.AddHours(expiryHours + 1)
             };
-            
+
             var delegationKey = await _blobServiceClient.GetUserDelegationKeyAsync(options);
 
 
@@ -84,11 +82,21 @@ namespace Infra.Repositories
             await blob.DownloadToAsync(ms);
             return ms.ToArray();
         }
-    
+
         public async Task DeleteAsync(string containerName, string blobName)
         {
             var blob = _blobServiceClient.GetBlobContainerClient(containerName).GetBlobClient(blobName);
             await blob.DeleteIfExistsAsync();
         }
+
+        //public async Task<(string containerName, string fileName)> GetContainerName(string? containerName)
+        //{
+        //    var containerClient = _blobServiceClient.GetBlobContainerClient("blob-test-container") ?? throw new InvalidOperationException("컨테이너 이름 생성 오류 발생"); ;
+        //    await containerClient.CreateIfNotExistsAsync(); // 개발용
+
+        //    string fileName = $"test_{DateTime.UtcNow:yyyyMMdd_HHmmss}.json";
+
+        //    return new { containerName = containerClient.Name, fileName };
+        //}
     }
 }

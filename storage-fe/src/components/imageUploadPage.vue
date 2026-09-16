@@ -3,7 +3,7 @@ import { onMounted, onUnmounted, reactive, ref } from "vue";
 
 import api from "../api";
 
-const uploadFile = ref(null);
+const ProfileImage = ref(null);
 const previewURL = ref(null);
 const formData = reactive(new FormData());
 /** 파일 선택, 미리보기, 업로드 구현 */
@@ -13,24 +13,22 @@ function handleInputChange(e) {
   if (!targetFile) {
     return;
   }
-  uploadFile.value = targetFile;
+  ProfileImage.value = targetFile;
   previewURL.value = URL.createObjectURL(targetFile);
 }
 
 async function uploadImage() {
-  if (uploadFile.value) {
-    formData.append("uploadFile", uploadFile.value);
+  if (ProfileImage.value) {
+    formData.append("ProfileImage", ProfileImage.value);
+    console.log(ProfileImage);
 
     try {
       // 별도 url 업로드
       // TODO : storage에는 blob를 업로드, db에는 url 메타 데이터를 업로드 이후 결정 (BE 로직 짜고)
-      const rtnImages = await api.post("/api/files/images", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const rtnImages = await api.post("/api/files/images", formData);
+      console.log("[1]: ", rtnImages);
       alert("업로드 완료");
-      console.log(rtnImages);
+      console.log("[2]: ", rtnImages);
     } catch (error) {
       console.error("업로드중 에러 : ", error);
       alert("업로드 중 에러");
@@ -53,7 +51,7 @@ async function uploadImage() {
     <form @submit.prevent="uploadImage">
       <input
         @change="handleInputChange"
-        ref="uploadFile"
+        ref="ProfileImage"
         type="file"
         accept="image/*"
       />
