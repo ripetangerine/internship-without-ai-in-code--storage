@@ -14,8 +14,8 @@ public class FilesController : ControllerBase
         _filesService = filesService;
     }
 
-    [HttpPost("images")]
-    public async Task<IActionResult> UploadImageDirect(IFormFile ProfileImage) // FromBody = 텍스트 전용
+    [HttpPost("images")] 
+    public async Task<IActionResult> UploadImageDirect([FromForm] IFormFile ProfileImage) // FromBody = 텍스트 전용
     {
         // 프론트에서 사진을 보내주면 blob 형식으로 백엔드에서 바로 업로드 하는거임.
         // TODO : dto, service logic
