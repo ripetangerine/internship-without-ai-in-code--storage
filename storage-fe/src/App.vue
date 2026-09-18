@@ -1,9 +1,10 @@
 <script setup>
-import HelloWorld from "./components/HelloWorld.vue";
-import ImageUploadPage from "./components/ImageUploadPage.vue";
+import HomePage from "./components/pages/HomePage.vue";
+import imageUploadPage from "./components/imageUploadPage.vue";
 </script>
 
 <template>
-  <!-- <HelloWorld /> -->
-  <ImageUploadPage />
+  <div class="app-container">
+    <router-view />
+  </div>
 </template>

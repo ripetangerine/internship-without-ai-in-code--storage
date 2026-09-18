@@ -294,3 +294,23 @@ code {
     border-right-color: var(--border);
   }
 } */
+
+:root {
+  --site-max-size: 1300px;
+  --page-px: clamp(16px, 4vw, 40px);
+  --card-padding: 24px;
+  --card-radius: 12px;
+  --card-bg: #fff;
+  --card-border: 1px solid #82acff;
+}
+
+.app-container {
+  max-width: var(--site-max-size);
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-left: var(--page-px);
+  padding-right: var(--page-px);
+  width: 100%;
+}

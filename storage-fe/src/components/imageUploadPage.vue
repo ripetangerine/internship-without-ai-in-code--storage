@@ -3,38 +3,39 @@ import { onMounted, onUnmounted, reactive, ref } from "vue";
 
 import api from "../api";
 
-const ProfileImage = ref(null);
-const previewURL = ref(null);
-const formData = reactive(new FormData());
-/** 파일 선택, 미리보기, 업로드 구현 */
+const fileInputRef = ref(null);
+const sendFileValue = ref(null);
+/** 파일선택, 미리보기, 업로드 구현 */
 
+// 파일 선택 호출함수
 function handleInputChange(e) {
   const targetFile = e.target.files[0];
   if (!targetFile) {
     return;
   }
-  ProfileImage.value = targetFile;
-  previewURL.value = URL.createObjectURL(targetFile);
+  sendFileValue.value = targetFile;
+  previewURL.value = URL.createObjectURL(targetFile); // 로컬 생성
 }
 
 async function uploadImage() {
-  if (ProfileImage.value) {
-    formData.append("ProfileImage", ProfileImage.value);
-    console.log(ProfileImage);
-
-    try {
-      // 별도 url 업로드
-      // TODO : storage에는 blob를 업로드, db에는 url 메타 데이터를 업로드 이후 결정 (BE 로직 짜고)
-      const rtnImages = await api.post("/api/files/images", formData);
-      console.log("[1]: ", rtnImages);
-      alert("업로드 완료");
-      console.log("[2]: ", rtnImages);
-    } catch (error) {
-      console.error("업로드중 에러 : ", error);
-      alert("업로드 중 에러");
-    }
-  } else {
+  if (!sendFileValue.value) {
     alert("파일을 선택하세요");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", sendFileValue.value);
+
+  try {
+    // 별도 url 업로드
+    // TODO : storage에는 blob를 업로드, db에는 url 메타 데이터를 업로드 이후 결정 (BE 로직 짜고)
+    const rtnImages = await api.post("/api/files/images", formData);
+    console.log("[1]: ", rtnImages);
+    alert("업로드 완료");
+    console.log("[2]: ", rtnImages);
+  } catch (error) {
+    console.error("업로드중 에러 : ", error);
+    alert("업로드 중 에러");
   }
 }
 </script>
@@ -49,12 +50,7 @@ async function uploadImage() {
   <div class="container">
     <label>storage blob upload</label>
     <form @submit.prevent="uploadImage">
-      <input
-        @change="handleInputChange"
-        ref="ProfileImage"
-        type="file"
-        accept="image/*"
-      />
+      <input @change="handleInputChange" ref="fileInputRef" type="file" />
       <button type="submit">upload</button>
     </form>
     <div ref="preview" class="preview">
