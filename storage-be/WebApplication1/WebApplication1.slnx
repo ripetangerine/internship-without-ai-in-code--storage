@@ -1,4 +1,3 @@
 <Solution>
-  <Project Path="Infra/Infra.csproj" />
   <Project Path="WebApplication1/Main.csproj" />
 </Solution>

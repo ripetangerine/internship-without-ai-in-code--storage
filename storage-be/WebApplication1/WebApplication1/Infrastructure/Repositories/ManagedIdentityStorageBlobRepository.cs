@@ -2,7 +2,7 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 
-namespace Infra.Repositories
+namespace Main.Infrastructure.Repositories
 {
     public class ManagedIdentityStorageBlobRepository // TODO : 추후 인터페이스 구현(application
     {
